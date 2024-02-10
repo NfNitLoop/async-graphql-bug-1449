@@ -14,13 +14,26 @@ impl Query {
     }
 
     async fn bar(&self) -> Result<Option<String>> {
-        Err("Some error".into())
+        let value = might_error().await?;
+        // [some long function]
+        Ok(Some(value))
     }
 
     // Inverting Result/Option:
     async fn inverted(&self) -> Option<Result<String>> {
+        // Note that having to return Option<Result<String>> means that you can't use `?`:
+        // This would not work here:
+        //
+        // let value = might_error().await?;
+        // Some(Ok(value))
+
         Some(Err("Some error".into()))
     }
+}
+
+// simulate a user calling a fallible function.
+async fn might_error() -> Result<String> {
+    Err("Some error".into())
 }
 
 // Below, Grabbed from the async-graphql readme:
