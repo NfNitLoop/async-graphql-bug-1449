@@ -3,7 +3,7 @@ use async_graphql_poem::GraphQL;
 use poem::{get, handler, listener::TcpListener, web::Html, IntoResponse, Route, Server};
 
 type DynError = Box<dyn std::error::Error + Send + Sync>;
-type Result<T = (), E = DynError> = std::result::Result<T, E>;
+type Result<T = (), E = String> = std::result::Result<T, E>;
 
 struct Query;
 
@@ -16,6 +16,11 @@ impl Query {
     async fn bar(&self) -> Result<Option<String>> {
         Err("Some error".into())
     }
+
+    // Inverting Result/Option:
+    async fn inverted(&self) -> Option<Result<String>> {
+        Some(Err("Some error".into()))
+    }
 }
 
 // Below, Grabbed from the async-graphql readme:
@@ -26,7 +31,7 @@ async fn graphiql() -> impl IntoResponse {
 }
 
 #[tokio::main]
-async fn main() -> Result {
+async fn main() -> Result<(), DynError> {
     // create the schema
     let schema = Schema::build(Query, EmptyMutation, EmptySubscription).finish();
 
